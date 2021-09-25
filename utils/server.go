@@ -8,7 +8,6 @@ import (
 	"github.com/gorilla/schema"
 	"image-analysis-tools-aggregator/logging"
 	"io/ioutil"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
@@ -45,11 +44,8 @@ func RespondWithOutputImage(w http.ResponseWriter, status int, filename string) 
 		logging.InfoFormat("cannot delete file %s: %s", filename, err)
 	}
 }
-func RespondWithMultipart(w http.ResponseWriter, status int, filenames []string ) {
-	mw := multipart.NewWriter(w)
-	w.WriteHeader(status)
-	w.Header().Set("Content-Type", mw.FormDataContentType())
-	rawFiles := make([][]byte, 0,len(filenames))
+func RespondWithMultipart(w http.ResponseWriter, status int, filenames []string) {
+	rawFiles := make([][]byte, 0, len(filenames))
 	for _, filename := range filenames {
 		file, err := os.Open(filename)
 		if err != nil {
@@ -62,22 +58,21 @@ func RespondWithMultipart(w http.ResponseWriter, status int, filenames []string 
 		rawFiles = append(rawFiles, fileBytes)
 		file.Close()
 	}
+	var contentDescriptor = ""
+	var totalContent []byte
 	for i, value := range rawFiles {
-		fw, err := mw.CreateFormFile("file" + strconv.Itoa(i),filenames[i])
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if _, err := fw.Write(value); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		err = os.Remove(filenames[i])
+		totalContent = append(totalContent, value...)
+		err := os.Remove(filenames[i])
 		if err != nil {
 			logging.InfoFormat("cannot delete file %s: %s", filenames[i], err)
 		}
+		l := strconv.Itoa(len(value)) + "_"
+		contentDescriptor += l
 	}
-	if err := mw.Close(); err != nil {
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("My-Content-Descriptor", contentDescriptor)
+	//w.WriteHeader(status)
+	if _, err := w.Write(totalContent); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -107,7 +102,7 @@ func RespondWithCompressedJson(w http.ResponseWriter, status int, payload interf
 
 func GetInternalFilename(filename string) (internalFilename string, err error) {
 	buf := strings.Split(filename, ".")
-	format := buf[len(buf) - 1]
+	format := buf[len(buf)-1]
 	if _, contains := StringInArray(format, SupportedFiletypes); !contains {
 		return "", errors.New("file cannot be processed, the image was expected")
 	}
