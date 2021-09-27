@@ -21,10 +21,10 @@ func GetImageFileInfo(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithJson(w, http.StatusBadRequest, err)
 		return
 	} else {
-		logging.InfoFormat( "filter: %+v", requestParams)
+		logging.InfoFormat("filter: %+v", requestParams)
 	}
-	cmd := exec.Command(py_scripts.ScriptsInterpreter,  py_scripts.GetImageInfoScriptPath,
-		py_scripts.ImageCacheFolderPath+ requestParams.InternalFileName)
+	cmd := exec.Command(py_scripts.ScriptsInterpreter, py_scripts.GetImageInfoScriptPath,
+		py_scripts.ImageCacheFolderPath+requestParams.InternalFileName)
 	stdOutStdErr, err := cmd.CombinedOutput()
 	logging.Info(stdOutStdErr)
 	output := strings.Split(strings.TrimSpace(string(stdOutStdErr)), py_scripts.ScriptResultsSeparator)
@@ -48,16 +48,16 @@ func GetFourierTransform(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithJson(w, http.StatusBadRequest, err)
 		return
 	} else {
-		logging.InfoFormat( "filter: %+v", requestParams)
+		logging.InfoFormat("filter: %+v", requestParams)
 	}
-	cmd := exec.Command(py_scripts.ScriptsInterpreter,  py_scripts.GetFourierTransform,
-		py_scripts.ImageCacheFolderPath + requestParams.InternalFileName)
+	cmd := exec.Command(py_scripts.ScriptsInterpreter, py_scripts.GetFourierTransform,
+		py_scripts.ImageCacheFolderPath+requestParams.InternalFileName)
 	stdOutStdErr, err := cmd.CombinedOutput()
 	logging.Info(string(stdOutStdErr))
 	if err != nil {
 		logging.InfoFormat("error during python script execution: %s", err)
 	}
-	utils.RespondWithOutputImage(w, http.StatusOK, py_scripts.OutputImageFolderPath + string(stdOutStdErr))
+	utils.RespondWithOutputImage(w, http.StatusOK, py_scripts.OutputImageFolderPath+string(stdOutStdErr))
 }
 
 func GetImagePalette(w http.ResponseWriter, r *http.Request) {
@@ -67,11 +67,11 @@ func GetImagePalette(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithJson(w, http.StatusBadRequest, err)
 		return
 	} else {
-		logging.InfoFormat( "filter: %+v", requestParams)
+		logging.InfoFormat("filter: %+v", requestParams)
 	}
 	colors := strconv.Itoa(requestParams.ColorsCount)
-	cmd := exec.Command(py_scripts.ScriptsInterpreter,  py_scripts.GetImagePalette,
-		py_scripts.ImageCacheFolderPath + requestParams.InternalFileName, colors)
+	cmd := exec.Command(py_scripts.ScriptsInterpreter, py_scripts.GetImagePalette,
+		py_scripts.ImageCacheFolderPath+requestParams.InternalFileName, colors)
 	stdOutStdErr, err := cmd.CombinedOutput()
 	logging.Info(string(stdOutStdErr))
 	if err != nil {
@@ -87,17 +87,17 @@ func GetImagePalette(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJson(w, http.StatusOK, resp)
 }
 
-func GetBitPlanes(w http.ResponseWriter, r *http.Request){
+func GetBitPlanes(w http.ResponseWriter, r *http.Request) {
 	var requestParams request.CommonImageAnalysisRequest
 	if err := utils.Decoder.Decode(&requestParams, r.URL.Query()); err != nil {
 		logging.ErrorFormat("failed to parse parameters %s: %s", r.URL.Query(), err)
 		utils.RespondWithJson(w, http.StatusBadRequest, err)
 		return
 	} else {
-		logging.InfoFormat( "filter: %+v", requestParams)
+		logging.InfoFormat("filter: %+v", requestParams)
 	}
-	cmd := exec.Command(py_scripts.ScriptsInterpreter,  py_scripts.GetImageBitPlanes,
-		py_scripts.ImageCacheFolderPath + requestParams.InternalFileName)
+	cmd := exec.Command(py_scripts.ScriptsInterpreter, py_scripts.GetImageBitPlanes,
+		py_scripts.ImageCacheFolderPath+requestParams.InternalFileName)
 	stdOutStdErr, err := cmd.CombinedOutput()
 	logging.Info(string(stdOutStdErr))
 	if err != nil {
@@ -120,10 +120,10 @@ func GetRGBHistogram(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithJson(w, http.StatusBadRequest, err)
 		return
 	} else {
-		logging.InfoFormat( "filter: %+v", requestParams)
+		logging.InfoFormat("filter: %+v", requestParams)
 	}
-	cmd := exec.Command(py_scripts.ScriptsInterpreter,  py_scripts.GetRGBHistogram,
-		py_scripts.ImageCacheFolderPath + requestParams.InternalFileName)
+	cmd := exec.Command(py_scripts.ScriptsInterpreter, py_scripts.GetRGBHistogram,
+		py_scripts.ImageCacheFolderPath+requestParams.InternalFileName)
 	stdOutStdErr, err := cmd.CombinedOutput()
 	logging.Info(string(stdOutStdErr))
 	if err != nil {
@@ -138,4 +138,3 @@ func GetRGBHistogram(w http.ResponseWriter, r *http.Request) {
 	}
 	utils.RespondWithJson(w, http.StatusOK, resp)
 }
-
